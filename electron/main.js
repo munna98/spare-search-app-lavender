@@ -46,9 +46,18 @@ async function importExcelToDatabase(filePath) {
       const partNumber = row['Part Number'] || row['part_number'] || row['partNumber'] || row['MATERIAL NUMBER'];
       const description = row['Description'] || row['description'] || row['MATERIAL DESCRIPTION'];
       // const brand = row['Brand'] || row['brand'];
-      const price = row['Price'] || row['price'] ||row['RETAIL PRICE'];
-      const price_vat = row['Price Vat'] || row['price_vat'] ||row['RETAIL PRICE (INC. VAT)'];
+      // const price = row['Price'] || row['price'] ||row['RETAIL PRICE'];
+      // const price_vat = row['Price Vat'] || row['price_vat'] ||row['RETAIL PRICE (INC. VAT)'];
+      const price = parseFloat(
+        row['RETAIL PRICE'] || row['Price'] || row['price'] || 0
+      );
+      const price_vat = parseFloat(
+        row['Price Vat'] || row['price_vat'] || row['RETAIL PRICE (INC. VAT)'] || 0
+      );
 
+       // Debug info
+      console.log(`Importing: ${partNumber}, Price: ${price}, Type: ${typeof price}`);
+      
       if (partNumber && description) {
         insert.run(partNumber, description, price, price_vat);
         importCount++;
@@ -164,7 +173,7 @@ ipcMain.handle('db:searchParts', async (event, searchParams) => {
       partNumber: row.part_number,
       description: row.description,
       // brand: row.brand,
-      price: row.price || 0,
+      price: row.price || 1,
       price_vat: row.price_vat || 0,
     }));
 

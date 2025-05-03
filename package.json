@@ -27,13 +27,15 @@
     "concurrently": "^8.2.2",
     "electron": "^35.2.0",
     "electron-builder": "^24.13.3",
+    "electron-rebuild": "^3.2.9",
     "eslint": "^8.38.0",
     "eslint-plugin-react": "^7.32.2",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.3.4",
     "postcss": "^8.4.23",
     "tailwindcss": "^3.3.2",
-    "vite": "^4.3.9"
+    "vite": "^4.3.9",
+    "wait-on": "^8.0.3"
   },
   "build": {
     "appId": "com.yourcompany.sparesearch",
