@@ -35,7 +35,11 @@ function initializeDatabase() {
 async function importExcelToDatabase(filePath) {
   const workbook = xlsx.readFile(filePath);
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  const data = xlsx.utils.sheet_to_json(sheet);
+  const data = xlsx.utils.sheet_to_json(sheet, {
+    range: 1, // Skip the first row (index 0), start from second
+    defval: "", // Default empty cells to empty string instead of undefined
+  });
+
 
   const insert = db.prepare(
     'INSERT INTO parts (part_number, description, price, price_vat) VALUES (?, ?, ?, ?)'
