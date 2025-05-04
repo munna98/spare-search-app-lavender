@@ -32,35 +32,115 @@ function initializeDatabase() {
 // Import data from Excel into SQLite
 
 
+// async function importExcelToDatabase(filePath) {
+//   const workbook = xlsx.readFile(filePath);
+//   const sheet = workbook.Sheets[workbook.SheetNames[0]];
+
+
+//   const data = xlsx.utils.sheet_to_json(sheet);
+
+//   const insert = db.prepare(
+//     'INSERT INTO parts (part_number, description, price, price_vat) VALUES (?, ?, ?, ?)'
+//   );
+//   const insertMany = db.transaction((rows) => {
+//     let importCount = 0;
+//     for (const row of rows) {
+//       const partNumber = row['Part Number'] || row['part_number'] || row['partNumber'] || row['MATERIAL NUMBER'];
+//       const description = row['Description'] || row['description'] || row['MATERIAL DESCRIPTION'];
+//       // const brand = row['Brand'] || row['brand'];
+//       // const price = row['Price'] || row['price'] ||row['RETAIL PRICE'];
+//       // const price_vat = row['Price Vat'] || row['price_vat'] ||row['RETAIL PRICE (INC. VAT)'];
+//       const price = parseFloat(
+//         row['RETAIL PRICE'] || row['Price'] || row['price'] || 0
+//       );
+//       const price_vat = parseFloat(
+//         row['Price Vat'] || row['price_vat'] || row['RETAIL PRICE (INC. VAT)'] || 0
+//       );
+
+//        // Debug info
+//       console.log(`Importing: ${partNumber}, Price: ${price}, Type: ${typeof price}`);
+      
+//       if (partNumber && description) {
+//         insert.run(partNumber, description, price, price_vat);
+//         importCount++;
+//       }
+//     }
+//     return importCount;
+//   });
+
+//   try {
+//     const count = insertMany(data);
+//     return {
+//       success: true,
+//       message: `Imported ${count} parts successfully`,
+//     };
+//   } catch (error) {
+//     return { success: false, message: error.message };
+//   }
+// }
+
 async function importExcelToDatabase(filePath) {
   const workbook = xlsx.readFile(filePath);
   const sheet = workbook.Sheets[workbook.SheetNames[0]];
-  const data = xlsx.utils.sheet_to_json(sheet, {
-    range: 1, // Skip the first row (index 0), start from second
-    defval: "", // Default empty cells to empty string instead of undefined
-  });
-
+  
+  // Get the range of the sheet to determine where actual data starts
+  const range = xlsx.utils.decode_range(sheet['!ref']);
+  
+  // Define header row (second row in your case, index 1)
+  const headerRowIndex = 1;
+  
+  // Extract headers from the second row
+  const headers = [];
+  for (let C = range.s.c; C <= range.e.c; ++C) {
+    const cellAddress = xlsx.utils.encode_cell({ r: headerRowIndex, c: C });
+    if (sheet[cellAddress]) {
+      headers[C] = sheet[cellAddress].v;
+    }
+  }
+  
+  // Convert sheet to JSON starting from row after headers (third row)
+  const data = [];
+  for (let R = headerRowIndex + 1; R <= range.e.r; ++R) {
+    const row = {};
+    let hasData = false;
+    
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cellAddress = xlsx.utils.encode_cell({ r: R, c: C });
+      if (sheet[cellAddress] && headers[C]) {
+        row[headers[C]] = sheet[cellAddress].v;
+        hasData = true;
+      }
+    }
+    
+    if (hasData) {
+      data.push(row);
+    }
+  }
 
   const insert = db.prepare(
     'INSERT INTO parts (part_number, description, price, price_vat) VALUES (?, ?, ?, ?)'
   );
+  
   const insertMany = db.transaction((rows) => {
     let importCount = 0;
     for (const row of rows) {
-      const partNumber = row['Part Number'] || row['part_number'] || row['partNumber'] || row['MATERIAL NUMBER'];
-      const description = row['Description'] || row['description'] || row['MATERIAL DESCRIPTION'];
-      // const brand = row['Brand'] || row['brand'];
-      // const price = row['Price'] || row['price'] ||row['RETAIL PRICE'];
-      // const price_vat = row['Price Vat'] || row['price_vat'] ||row['RETAIL PRICE (INC. VAT)'];
-      const price = parseFloat(
-        row['RETAIL PRICE'] || row['Price'] || row['price'] || 0
-      );
-      const price_vat = parseFloat(
-        row['Price Vat'] || row['price_vat'] || row['RETAIL PRICE (INC. VAT)'] || 0
-      );
+      const partNumber = row['MATERIAL NUMBER'];
+      const description = row['MATERIAL DESCRIPTION'];
+      
+      // Parse prices, ensuring they're valid numbers
+      let price = 0;
+      let price_vat = 0;
+      
+      if (row['RETAIL PRICE'] !== undefined) {
+        price = parseFloat(row['RETAIL PRICE']) || 0;
+      }
+      
+      if (row['RETAIL PRICE (INC. VAT)'] !== undefined) {
+        price_vat = parseFloat(row['RETAIL PRICE (INC. VAT)']) || 0;
+      }
 
-       // Debug info
-      console.log(`Importing: ${partNumber}, Price: ${price}, Type: ${typeof price}`);
+      // Debug info
+      console.log(`Importing: ${partNumber}, Description: ${description}, Price: ${price}, Price VAT: ${price_vat}`);
       
       if (partNumber && description) {
         insert.run(partNumber, description, price, price_vat);
