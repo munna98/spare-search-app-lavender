@@ -66,7 +66,7 @@ export default function App() {
     <div className="p-6 max-w-3xl mx-auto">
       <ToastContainer position="top-right" autoClose={3000} />
       
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-6 ">
         <h1 className="text-3xl font-bold text-gray-900">Spare parts search</h1>
         <button 
           onClick={handleImportFile}

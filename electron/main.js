@@ -29,56 +29,6 @@ function initializeDatabase() {
   console.log(`Database initialized at: ${dbPath}`);
 }
 
-// Import data from Excel into SQLite
-
-
-// async function importExcelToDatabase(filePath) {
-//   const workbook = xlsx.readFile(filePath);
-//   const sheet = workbook.Sheets[workbook.SheetNames[0]];
-
-
-//   const data = xlsx.utils.sheet_to_json(sheet);
-
-//   const insert = db.prepare(
-//     'INSERT INTO parts (part_number, description, price, price_vat) VALUES (?, ?, ?, ?)'
-//   );
-//   const insertMany = db.transaction((rows) => {
-//     let importCount = 0;
-//     for (const row of rows) {
-//       const partNumber = row['Part Number'] || row['part_number'] || row['partNumber'] || row['MATERIAL NUMBER'];
-//       const description = row['Description'] || row['description'] || row['MATERIAL DESCRIPTION'];
-//       // const brand = row['Brand'] || row['brand'];
-//       // const price = row['Price'] || row['price'] ||row['RETAIL PRICE'];
-//       // const price_vat = row['Price Vat'] || row['price_vat'] ||row['RETAIL PRICE (INC. VAT)'];
-//       const price = parseFloat(
-//         row['RETAIL PRICE'] || row['Price'] || row['price'] || 0
-//       );
-//       const price_vat = parseFloat(
-//         row['Price Vat'] || row['price_vat'] || row['RETAIL PRICE (INC. VAT)'] || 0
-//       );
-
-//        // Debug info
-//       console.log(`Importing: ${partNumber}, Price: ${price}, Type: ${typeof price}`);
-      
-//       if (partNumber && description) {
-//         insert.run(partNumber, description, price, price_vat);
-//         importCount++;
-//       }
-//     }
-//     return importCount;
-//   });
-
-//   try {
-//     const count = insertMany(data);
-//     return {
-//       success: true,
-//       message: `Imported ${count} parts successfully`,
-//     };
-//   } catch (error) {
-//     return { success: false, message: error.message };
-//   }
-// }
-
 async function importExcelToDatabase(filePath) {
   const workbook = xlsx.readFile(filePath);
   const sheet = workbook.Sheets[workbook.SheetNames[0]];

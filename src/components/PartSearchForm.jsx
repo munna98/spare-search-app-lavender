@@ -13,18 +13,18 @@ export default function PartSearchForm({ onSearch }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col gap-4 p-4 bg-white shadow-sm border-2 border-gray-100 rounded mb-4"
+      className="flex flex-col gap-4 p-4 bg-white shadow-sm border-2 border-gray-100 rounded-xl mb-4"
     >
       <div className="flex gap-4 items-end">
         <div className="flex-1">
           <label className="block text-sm font-semibold mb-1 text-gray-700">
-            Part Number or Description
+            Part Number 
           </label>
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             className="w-full px-4 py-2 border rounded-md text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter part number or description"
+            placeholder="Enter part number"
           />
         </div>
         <button
